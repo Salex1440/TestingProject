@@ -49,6 +49,8 @@ class CustomerRepositoryTest {
         assertThatThrownBy(() -> customerRepository.save(customer))
                 .hasMessageContaining("Could not commit JPA transaction")
                 .isInstanceOf(TransactionSystemException.class);
+        UUID id = customer.getId();
+        assertThat(customerRepository.findById(id)).isNotPresent();
 
     }
 
@@ -58,7 +60,8 @@ class CustomerRepositoryTest {
         assertThatThrownBy(() -> customerRepository.save(customer))
                 .hasMessageContaining("Could not commit JPA transaction")
                 .isInstanceOf(TransactionSystemException.class);
-
+        UUID id = customer.getId();
+        assertThat(customerRepository.findById(id)).isNotPresent();
     }
 
     @Test
@@ -67,7 +70,8 @@ class CustomerRepositoryTest {
         assertThatThrownBy(() -> customerRepository.save(customer))
                 .hasMessageContaining("Could not commit JPA transaction")
                 .isInstanceOf(TransactionSystemException.class);
-
+        UUID id = customer.getId();
+        assertThat(customerRepository.findById(id)).isNotPresent();
     }
 
     @Test
@@ -76,7 +80,8 @@ class CustomerRepositoryTest {
         assertThatThrownBy(() -> customerRepository.save(customer))
                 .hasMessageContaining("Could not commit JPA transaction")
                 .isInstanceOf(TransactionSystemException.class);
-
+        UUID id = customer.getId();
+        assertThat(customerRepository.findById(id)).isNotPresent();
     }
 
     @Test
@@ -88,6 +93,9 @@ class CustomerRepositoryTest {
         assertThatThrownBy(() -> customerRepository.save(customer2))
                 .hasMessageContaining("could not execute statement")
                 .isInstanceOf(DataIntegrityViolationException.class);
-
+        UUID id = customer.getId();
+        assertThat(customerRepository.findById(id)).isPresent();
+        UUID id2 = customer2.getId();
+        assertThat(customerRepository.findById(id2)).isNotPresent();
     }
 }
