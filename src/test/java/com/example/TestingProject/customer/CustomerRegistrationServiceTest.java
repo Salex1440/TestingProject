@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -17,7 +16,6 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
-;
 
 class CustomerRegistrationServiceTest {
 
@@ -37,9 +35,8 @@ class CustomerRegistrationServiceTest {
 
     @Test
     void saveNewCustomer() {
-        UUID id = UUID.randomUUID();
         String phoneNumber = "+1234";
-        Customer customer = new Customer(id, "Alex", phoneNumber);
+        Customer customer = new Customer("Alex", phoneNumber);
         CustomerRegistrationRequest request = new CustomerRegistrationRequest(customer);
 
         when(customerRepositoryMock.selectByPhoneNumber(phoneNumber))
@@ -53,9 +50,8 @@ class CustomerRegistrationServiceTest {
 
     @Test
     void notSaveCustomerWhenCustomerExists() {
-        UUID id = UUID.randomUUID();
         String phoneNumber = "+1234";
-        Customer customer = new Customer(id, "Alex", phoneNumber);
+        Customer customer = new Customer("Alex", phoneNumber);
         CustomerRegistrationRequest request = new CustomerRegistrationRequest(customer);
 
         when(customerRepositoryMock.selectByPhoneNumber(phoneNumber))
@@ -68,13 +64,12 @@ class CustomerRegistrationServiceTest {
 
     @Test
     void throwExceptionWhenPhoneNumberIsInUse() {
-        UUID id = UUID.randomUUID();
         String phoneNumber = "+1234";
-        Customer customer = new Customer(id, "Alex", phoneNumber);
+        Customer customer = new Customer("Alex", phoneNumber);
         CustomerRegistrationRequest request = new CustomerRegistrationRequest(customer);
 
         when(customerRepositoryMock.selectByPhoneNumber(phoneNumber))
-                .thenReturn(Optional.of(new Customer(UUID.randomUUID(), "Bob", phoneNumber)));
+                .thenReturn(Optional.of(new Customer("Bob", phoneNumber)));
 
         assertThatThrownBy(() -> customerRegistrationService.registerNewCustomer(request))
                 .hasMessageContaining(String.format("The phone number %s is already exists!", phoneNumber))

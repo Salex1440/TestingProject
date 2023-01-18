@@ -26,10 +26,9 @@ class CustomerRepositoryTest {
 
     @Test
     void saveCustomer() {
-        UUID id = UUID.randomUUID();
-        Customer customer = new Customer(id, "Abel", "+1234");
-
+        Customer customer = new Customer("Abel", "+1234");
         customerRepository.save(customer);
+        UUID id = customer.getId();
 
         Optional<Customer> optionalCustomer = customerRepository.findById(id);
         assertThat(optionalCustomer)
@@ -44,8 +43,7 @@ class CustomerRepositoryTest {
 
     @Test
     void notSaveCustomerWhenNameIsNull() {
-        UUID id = UUID.randomUUID();
-        Customer customer = new Customer(id, null, "+1234");
+        Customer customer = new Customer(null, "+1234");
         assertThatThrownBy(() -> customerRepository.save(customer))
                 .hasMessageContaining("Could not commit JPA transaction")
                 .isInstanceOf(TransactionSystemException.class);
@@ -54,8 +52,7 @@ class CustomerRepositoryTest {
 
     @Test
     void notSaveCustomerWhenNameIsBlank() {
-        UUID id = UUID.randomUUID();
-        Customer customer = new Customer(id, "", "+1234");
+        Customer customer = new Customer("", "+1234");
         assertThatThrownBy(() -> customerRepository.save(customer))
                 .hasMessageContaining("Could not commit JPA transaction")
                 .isInstanceOf(TransactionSystemException.class);
@@ -64,8 +61,7 @@ class CustomerRepositoryTest {
 
     @Test
     void notSaveCustomerWhenPhoneNumberIsNull() {
-        UUID id = UUID.randomUUID();
-        Customer customer = new Customer(id, "Abel", null);
+        Customer customer = new Customer("Abel", null);
         assertThatThrownBy(() -> customerRepository.save(customer))
                 .hasMessageContaining("Could not commit JPA transaction")
                 .isInstanceOf(TransactionSystemException.class);
@@ -74,8 +70,7 @@ class CustomerRepositoryTest {
 
     @Test
     void notSaveCustomerWhenPhoneNumberIsBlank() {
-        UUID id = UUID.randomUUID();
-        Customer customer = new Customer(id, "Abel", "");
+        Customer customer = new Customer("Abel", "");
         assertThatThrownBy(() -> customerRepository.save(customer))
                 .hasMessageContaining("Could not commit JPA transaction")
                 .isInstanceOf(TransactionSystemException.class);
