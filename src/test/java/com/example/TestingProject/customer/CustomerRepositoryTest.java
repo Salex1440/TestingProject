@@ -1,9 +1,11 @@
 package com.example.TestingProject.customer;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.TransactionSystemException;
 
 import java.util.Optional;
@@ -19,9 +21,9 @@ class CustomerRepositoryTest {
     @Autowired
     private CustomerRepository customerRepository;
 
-    @Test
-    void selectByPhoneNumber() {
-
+    @AfterEach
+    void tearDown() {
+        customerRepository.deleteAll();
     }
 
     @Test
@@ -74,6 +76,18 @@ class CustomerRepositoryTest {
         assertThatThrownBy(() -> customerRepository.save(customer))
                 .hasMessageContaining("Could not commit JPA transaction")
                 .isInstanceOf(TransactionSystemException.class);
+
+    }
+
+    @Test
+    void notSaveCustomerWhenPhoneNumberIsNotUnique() {
+        String phoneNumber = "+1234";
+        Customer customer = new Customer("Abel", phoneNumber);
+        Customer customer2 = new Customer("Bob", phoneNumber);
+        customerRepository.save(customer);
+        assertThatThrownBy(() -> customerRepository.save(customer2))
+                .hasMessageContaining("could not execute statement")
+                .isInstanceOf(DataIntegrityViolationException.class);
 
     }
 }
