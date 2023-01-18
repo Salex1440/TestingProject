@@ -3,10 +3,8 @@ package com.example.TestingProject.customer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.transaction.TransactionSystemException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -14,8 +12,11 @@ import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
-@SpringBootTest
-@AutoConfigureTestDatabase
+@DataJpaTest(
+        properties = {
+                "spring.jpa.properties.javax.persistence.validation.mode=none"
+        }
+)
 class CustomerRepositoryTest {
 
     @Autowired
@@ -47,19 +48,18 @@ class CustomerRepositoryTest {
     void notSaveCustomerWhenNameIsNull() {
         Customer customer = new Customer(null, "+1234");
         assertThatThrownBy(() -> customerRepository.save(customer))
-                .hasMessageContaining("Could not commit JPA transaction")
-                .isInstanceOf(TransactionSystemException.class);
+                .hasMessageContaining("not-null property references a null or transient value")
+                .isInstanceOf(DataIntegrityViolationException.class);
         UUID id = customer.getId();
         assertThat(customerRepository.findById(id)).isNotPresent();
-
     }
 
     @Test
     void notSaveCustomerWhenNameIsBlank() {
         Customer customer = new Customer("", "+1234");
         assertThatThrownBy(() -> customerRepository.save(customer))
-                .hasMessageContaining("Could not commit JPA transaction")
-                .isInstanceOf(TransactionSystemException.class);
+                .hasMessageContaining("not-null property references a null or transient value")
+                .isInstanceOf(DataIntegrityViolationException.class);
         UUID id = customer.getId();
         assertThat(customerRepository.findById(id)).isNotPresent();
     }
@@ -68,8 +68,8 @@ class CustomerRepositoryTest {
     void notSaveCustomerWhenPhoneNumberIsNull() {
         Customer customer = new Customer("Abel", null);
         assertThatThrownBy(() -> customerRepository.save(customer))
-                .hasMessageContaining("Could not commit JPA transaction")
-                .isInstanceOf(TransactionSystemException.class);
+                .hasMessageContaining("not-null property references a null or transient value")
+                .isInstanceOf(DataIntegrityViolationException.class);
         UUID id = customer.getId();
         assertThat(customerRepository.findById(id)).isNotPresent();
     }
@@ -78,20 +78,20 @@ class CustomerRepositoryTest {
     void notSaveCustomerWhenPhoneNumberIsBlank() {
         Customer customer = new Customer("Abel", "");
         assertThatThrownBy(() -> customerRepository.save(customer))
-                .hasMessageContaining("Could not commit JPA transaction")
-                .isInstanceOf(TransactionSystemException.class);
+                .hasMessageContaining("not-null property references a null or transient value")
+                .isInstanceOf(DataIntegrityViolationException.class);
         UUID id = customer.getId();
         assertThat(customerRepository.findById(id)).isNotPresent();
     }
 
     @Test
     void notSaveCustomerWhenPhoneNumberIsNotUnique() {
-        String phoneNumber = "+1234";
+        String phoneNumber = "+12345";
         Customer customer = new Customer("Abel", phoneNumber);
         Customer customer2 = new Customer("Bob", phoneNumber);
         customerRepository.save(customer);
         assertThatThrownBy(() -> customerRepository.save(customer2))
-                .hasMessageContaining("could not execute statement")
+                .hasMessageContaining("not-null property references a null or transient value")
                 .isInstanceOf(DataIntegrityViolationException.class);
         UUID id = customer.getId();
         assertThat(customerRepository.findById(id)).isPresent();
