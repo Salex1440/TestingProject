@@ -33,10 +33,8 @@ public class PaymentService {
 
         try {
             Currency currency = Currency.valueOf(paymentRequest.getPayment().getCurrency().name());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalStateException(
-                    String.format("Currency [%s] is not supported!",
-                            paymentRequest.getPayment().getCurrency().name()));
+        } catch (IllegalArgumentException | NullPointerException e) {
+            throw new IllegalStateException("Currency is not supported!");
         }
 
         CardPaymentCharge cardPaymentCharge = cardPaymentCharger.chargeCard(

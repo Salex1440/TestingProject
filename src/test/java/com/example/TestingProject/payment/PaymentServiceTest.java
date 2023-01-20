@@ -12,8 +12,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class PaymentServiceTest {
 
@@ -51,7 +53,7 @@ class PaymentServiceTest {
         Customer customer = new Customer("Alex", "+1234");
         customer.setId(id);
         when(customerRepositoryMock.findById(id)).thenReturn(Optional.of(customer));
-        Payment payment = new Payment(customer,
+        Payment payment = new Payment(null,
                 new BigDecimal("10.00"),
                 Currency.USD,
                 "card123",
@@ -71,6 +73,70 @@ class PaymentServiceTest {
         Payment paymentCaptured = paymentArgumentCaptor.getValue();
         payment.setCustomer(customer);
         assertThat(paymentCaptured).isEqualTo(payment);
+    }
+
+    @Test
+    void chargeCardThrowsExceptionWhenCustomerNotFound() {
+        UUID id = UUID.randomUUID();
+        when(customerRepositoryMock.findById(id)).thenReturn(Optional.empty());
+        Payment payment = new Payment(null,
+                new BigDecimal("10.00"),
+                Currency.USD,
+                "card123",
+                "description");
+        PaymentRequest paymentRequest = new PaymentRequest(payment);
+
+        assertThatThrownBy(() -> paymentService.chargeCard(id, paymentRequest))
+                .hasMessageContaining(String.format("Customer with id [%s] not found!", id))
+                .isInstanceOf(IllegalStateException.class);
+        then(paymentRepositoryMock).should(never()).save(any(Payment.class));
+    }
+
+    @Test
+    void chargeCardThrowsExceptionWhenCurrencyIsNotSupported() {
+        UUID id = UUID.randomUUID();
+        Customer customer = new Customer("Alex", "+1234");
+        customer.setId(id);
+        when(customerRepositoryMock.findById(id)).thenReturn(Optional.of(customer));
+        Payment payment = new Payment(null,
+                new BigDecimal("10.00"),
+                null,
+                "card123",
+                "description");
+        PaymentRequest paymentRequest = new PaymentRequest(payment);
+
+        assertThatThrownBy(() -> paymentService.chargeCard(id, paymentRequest))
+                .hasMessageContaining("Currency is not supported!")
+                .isInstanceOf(IllegalStateException.class);
+        then(paymentRepositoryMock).should(never()).save(any(Payment.class));
+    }
+
+    @Test
+    void chargeCardThrowsExceptionWhenCardNotDebited() {
+        UUID id = UUID.randomUUID();
+        Customer customer = new Customer("Alex", "+1234");
+        customer.setId(id);
+        when(customerRepositoryMock.findById(id)).thenReturn(Optional.of(customer));
+        Payment payment = new Payment(null,
+                new BigDecimal("10.00"),
+                Currency.USD,
+                "card123",
+                "description");
+        PaymentRequest paymentRequest = new PaymentRequest(payment);
+        CardPaymentCharge cardPaymentCharge = new CardPaymentCharge(false);
+        when(cardPaymentChargerMock.chargeCard(
+                payment.getSource(),
+                payment.getAmount(),
+                payment.getCurrency(),
+                payment.getDescription()))
+                .thenReturn(cardPaymentCharge);
+
+        assertThatThrownBy(() -> paymentService.chargeCard(id, paymentRequest))
+                .hasMessageContaining(String.format("Card [%s] is not debited for customer with id [%s]!",
+                        paymentRequest.getPayment().getSource(),
+                        id))
+                .isInstanceOf(IllegalStateException.class);
+        then(paymentRepositoryMock).should(never()).save(any(Payment.class));
     }
 
 }
