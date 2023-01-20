@@ -44,6 +44,30 @@ class CustomerRepositoryTest {
     }
 
     @Test
+    void selectCustomerByPhoneNumber() {
+        String phoneNumber = "+1234";
+        Customer customer = new Customer("Abel", phoneNumber);
+        customerRepository.save(customer);
+        Optional<Customer> optionalCustomer = customerRepository.selectByPhoneNumber(phoneNumber);
+        assertThat(optionalCustomer)
+                .isPresent()
+                .hasValueSatisfying(c -> {
+                    assertThat(c).usingRecursiveComparison().isEqualTo(customer);
+                });
+
+    }
+
+    @Test
+    void notSelectCustomerByPhoneNumberWhenNumberDoesNotExist() {
+        String phoneNumber = "+1234";
+        Customer customer = new Customer("Abel", phoneNumber);
+        customerRepository.save(customer);
+        Optional<Customer> optionalCustomer = customerRepository.selectByPhoneNumber("+0000");
+        assertThat(optionalCustomer)
+                .isNotPresent();
+    }
+
+    @Test
     void notSaveCustomerWhenNameIsNull() {
         Customer customer = new Customer(null, "+1234");
         assertThatThrownBy(() -> customerRepository.save(customer))
