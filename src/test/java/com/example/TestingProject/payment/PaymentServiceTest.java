@@ -89,6 +89,7 @@ class PaymentServiceTest {
         assertThatThrownBy(() -> paymentService.chargeCard(id, paymentRequest))
                 .hasMessageContaining(String.format("Customer with id [%s] not found!", id))
                 .isInstanceOf(IllegalStateException.class);
+        then(cardPaymentChargerMock).shouldHaveNoInteractions();
         then(paymentRepositoryMock).should(never()).save(any(Payment.class));
     }
 
@@ -108,6 +109,7 @@ class PaymentServiceTest {
         assertThatThrownBy(() -> paymentService.chargeCard(id, paymentRequest))
                 .hasMessageContaining("Currency is not supported!")
                 .isInstanceOf(IllegalStateException.class);
+        then(cardPaymentChargerMock).shouldHaveNoInteractions();
         then(paymentRepositoryMock).should(never()).save(any(Payment.class));
     }
 
