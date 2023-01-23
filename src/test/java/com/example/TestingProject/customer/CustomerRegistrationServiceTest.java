@@ -42,10 +42,11 @@ class CustomerRegistrationServiceTest {
         when(customerRepositoryMock.selectByPhoneNumber(phoneNumber))
                 .thenReturn(Optional.empty());
 
-        customerRegistrationService.registerNewCustomer(request);
+        CustomerRegistrationResponse response = customerRegistrationService.registerNewCustomer(request);
         then(customerRepositoryMock).should().save(customerArgumentCaptor.capture());
         Customer capturedCustomer = customerArgumentCaptor.getValue();
         assertThat(capturedCustomer).usingRecursiveComparison().isEqualTo(customer);
+        assertThat(request).usingRecursiveComparison().isEqualTo(new CustomerRegistrationResponse(customer));
     }
 
     @Test

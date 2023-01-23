@@ -13,7 +13,7 @@ public class CustomerRegistrationService {
         this.customerRepository = customerRepository;
     }
 
-    public void registerNewCustomer(CustomerRegistrationRequest request) {
+    public CustomerRegistrationResponse registerNewCustomer(CustomerRegistrationRequest request) {
         Customer customer = request.getCustomer();
         customerRepository
                 .selectByPhoneNumber(customer.getPhoneNumber())
@@ -27,5 +27,6 @@ public class CustomerRegistrationService {
                         },
                         () -> customerRepository.save(customer)
                 );
+        return new CustomerRegistrationResponse(customer);
     }
 }
