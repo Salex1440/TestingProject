@@ -23,7 +23,7 @@ import java.util.UUID;
                 )
         }
 )
-@JsonIgnoreProperties(value = {"id"}, allowGetters = true)
+@JsonIgnoreProperties(allowGetters = true)
 public class Customer {
 
     @Id

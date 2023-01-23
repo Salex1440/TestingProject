@@ -16,7 +16,7 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    @RequestMapping("/{customerId")
+    @RequestMapping("/{customerId}")
     public void makePayment(@PathVariable("customerId") UUID customerId,
                             @RequestBody PaymentRequest request) {
         paymentService.chargeCard(customerId, request);
