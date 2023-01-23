@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +19,7 @@ import java.util.UUID;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "customers_phone_number_unique",
-                        columnNames = { "phone_number" }
+                        columnNames = {"phone_number"}
                 )
         }
 )
