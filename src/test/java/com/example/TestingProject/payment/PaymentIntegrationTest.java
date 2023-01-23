@@ -15,10 +15,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -48,6 +50,21 @@ class PaymentIntegrationTest {
                 .andExpect(status().isOk());
 
         UUID customerId = customerRegistrationResponse.getCustomer().getId();
+
+        Payment payment = new Payment(customer,
+                new BigDecimal("10.00"),
+                Currency.USD,
+                "card123",
+                "donation");
+        PaymentRequest paymentRequest = new PaymentRequest(payment);
+        ResultActions paymentResultActions = mockMvc.perform(post("/api/v1/payment/{customerId}", customerId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectToJson(paymentRequest))
+        );
+        paymentResultActions
+                .andExpect(status().isOk());
+
+
     }
 
 
