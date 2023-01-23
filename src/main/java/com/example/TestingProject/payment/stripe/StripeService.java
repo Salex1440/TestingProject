@@ -6,6 +6,7 @@ import com.example.TestingProject.payment.Currency;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.net.RequestOptions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -15,9 +16,16 @@ import java.util.Map;
 @Service
 public class StripeService implements CardPaymentCharger {
 
+    private final StripeApi stripeApi;
+
     private final static RequestOptions requestOptions = RequestOptions.builder()
             .setApiKey("sk_test_4eC39HqLyjWDarjtT1zdp7dc")
             .build();
+
+    @Autowired
+    public StripeService(StripeApi stripeApi) {
+        this.stripeApi = stripeApi;
+    }
 
     @Override
     public CardPaymentCharge chargeCard(String cardSource,
@@ -31,10 +39,10 @@ public class StripeService implements CardPaymentCharger {
         params.put("description", description);
 
         try {
-            Charge charge = Charge.create(params, requestOptions);
+            Charge charge = stripeApi.create(params, requestOptions);
             Boolean chargePaid = charge.getPaid();
             return new CardPaymentCharge(chargePaid);
-        } catch (StripeException e) {
+        } catch (RuntimeException e) {
             throw new IllegalStateException("Cannot make stripe charge", e);
         }
 
