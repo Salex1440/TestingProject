@@ -39,7 +39,7 @@ class CustomerRepositoryTest {
 //                    assertThat(c.getId()).isEqualTo(id);
 //                    assertThat(c.getName()).isEqualTo(customer.getName());
 //                    assertThat(c.getPhoneNumber()).isEqualTo(customer.getPhoneNumber());
-                    assertThat(c).usingRecursiveComparison().isEqualTo(customer);
+                    assertThat(c.equals(customer)).isTrue();
                 });
     }
 
@@ -52,7 +52,7 @@ class CustomerRepositoryTest {
         assertThat(optionalCustomer)
                 .isPresent()
                 .hasValueSatisfying(c -> {
-                    assertThat(c).usingRecursiveComparison().isEqualTo(customer);
+                    assertThat(c.equals(customer)).isTrue();
                 });
 
     }
