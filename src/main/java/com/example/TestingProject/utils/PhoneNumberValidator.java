@@ -4,10 +4,11 @@ import java.util.function.Predicate;
 
 public class PhoneNumberValidator implements Predicate<String> {
 
-    @Override
-    public boolean test(String s) {
+    private final String regex = "^\\+7\\d{10}$";
 
-        return true;
+    @Override
+    public boolean test(String phoneNumber) {
+        return phoneNumber.matches(regex);
     }
 
 }
